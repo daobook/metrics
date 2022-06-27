@@ -277,8 +277,12 @@ class _LevenshteinEditDistance:
         Return:
             A list of tuples containing infinite edit operation costs and yet undefined edit operations.
         """
-        empty_row = [(int(_EDIT_OPERATIONS_COST.OP_UNDEFINED), _EDIT_OPERATIONS.OP_UNDEFINED)] * (length + 1)
-        return empty_row
+        return [
+            (
+                int(_EDIT_OPERATIONS_COST.OP_UNDEFINED),
+                _EDIT_OPERATIONS.OP_UNDEFINED,
+            )
+        ] * (length + 1)
 
     @staticmethod
     def _get_initial_row(length: int) -> List[Tuple[int, _EDIT_OPERATIONS]]:
@@ -291,8 +295,10 @@ class _LevenshteinEditDistance:
         Return:
             A list of tuples containing edit operation costs of insert and insert edit operations.
         """
-        initial_row = [(i * _EDIT_OPERATIONS_COST.OP_INSERT, _EDIT_OPERATIONS.OP_INSERT) for i in range(length + 1)]
-        return initial_row
+        return [
+            (i * _EDIT_OPERATIONS_COST.OP_INSERT, _EDIT_OPERATIONS.OP_INSERT)
+            for i in range(length + 1)
+        ]
 
 
 def _validate_inputs(
@@ -324,7 +330,11 @@ def _validate_inputs(
         else:
             reference_corpus = [[ref] for ref in reference_corpus]  # type: ignore
 
-    if hypothesis_corpus and all(ref for ref in reference_corpus) and len(reference_corpus) != len(hypothesis_corpus):
+    if (
+        hypothesis_corpus
+        and all(reference_corpus)
+        and len(reference_corpus) != len(hypothesis_corpus)
+    ):
         raise ValueError(f"Corpus has different size {len(reference_corpus)} != {len(hypothesis_corpus)}")
 
     return reference_corpus, hypothesis_corpus
@@ -372,9 +382,7 @@ def _flip_trace(trace: Tuple[_EDIT_OPERATIONS, ...]) -> Tuple[_EDIT_OPERATIONS, 
     def _replace_operation_or_retain(
         operation: _EDIT_OPERATIONS, _flip_operations: Dict[_EDIT_OPERATIONS, _EDIT_OPERATIONS]
     ) -> _EDIT_OPERATIONS:
-        if operation in _flip_operations:
-            return _flip_operations.get(operation)  # type: ignore
-        return operation
+        return _flip_operations.get(operation, operation)
 
     inverted_trace = tuple(_replace_operation_or_retain(operation, _flip_operations) for operation in trace)
     return inverted_trace

@@ -143,7 +143,7 @@ def _eed_function(
     next_row = [inf] * (len(hyp) + 1)
 
     for w in range(1, len(ref) + 1):
-        for i in range(0, len(hyp) + 1):
+        for i in range(len(hyp) + 1):
 
             if i > 0:
                 next_row[i] = min(
@@ -209,7 +209,7 @@ def _preprocess_en(sentence: str) -> str:
         sentence = sentence.replace(pattern, replacement)
 
     # add space to beginning and end of string
-    sentence = " " + sentence + " "
+    sentence = f" {sentence} "
 
     return sentence
 
@@ -238,11 +238,11 @@ def _eed_compute(sentence_level_scores: List[Tensor]) -> Tensor:
     Return:
         average of scores as a tensor
     """
-    if len(sentence_level_scores) == 0:
-        return tensor(0.0)
-
-    average = sum(sentence_level_scores) / tensor(len(sentence_level_scores))
-    return average
+    return (
+        sum(sentence_level_scores) / tensor(len(sentence_level_scores))
+        if sentence_level_scores
+        else tensor(0.0)
+    )
 
 
 def _preprocess_sentences(
@@ -393,7 +393,7 @@ def extended_edit_distance(
     """
     # input validation for parameters
     for param_name, param in zip(["alpha", "rho", "deletion", "insertion"], [alpha, rho, deletion, insertion]):
-        if not isinstance(param, float) or isinstance(param, float) and param < 0:
+        if not isinstance(param, float) or param < 0:
             raise ValueError(f"Parameter `{param_name}` is expected to be a non-negative float.")
 
     sentence_level_scores = _eed_update(preds, target, language, alpha, rho, deletion, insertion)

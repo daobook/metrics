@@ -253,15 +253,14 @@ def _bincount(x: Tensor, minlength: Optional[int] = None) -> Tensor:
     Returns:
         Number of occurrences for each unique element in x
     """
-    if x.is_cuda and deterministic():
-        if minlength is None:
-            minlength = len(torch.unique(x))
-        output = torch.zeros(minlength, device=x.device, dtype=torch.long)
-        for i in range(minlength):
-            output[i] = (x == i).sum()
-        return output
-    else:
+    if not x.is_cuda or not deterministic():
         return torch.bincount(x, minlength=minlength)
+    if minlength is None:
+        minlength = len(torch.unique(x))
+    output = torch.zeros(minlength, device=x.device, dtype=torch.long)
+    for i in range(minlength):
+        output[i] = (x == i).sum()
+    return output
 
 
 def allclose(tensor1: Tensor, tensor2: Tensor) -> bool:

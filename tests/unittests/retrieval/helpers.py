@@ -107,17 +107,15 @@ def _compute_sklearn_metric(
         trg, pds = target[group], preds[group]
 
         if ((1 - trg) if reverse else trg).sum() == 0:
-            if empty_target_action == "skip":
-                pass
-            elif empty_target_action == "pos":
+            if empty_target_action == "pos":
                 sk_results.append(1.0)
-            else:
+            elif empty_target_action != "skip":
                 sk_results.append(0.0)
         else:
             res = metric(trg, pds, **kwargs)
             sk_results.append(res)
 
-    if len(sk_results) > 0:
+    if sk_results:
         return np.mean(sk_results)
     return np.array(0.0)
 

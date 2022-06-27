@@ -47,11 +47,11 @@ def _confusion_matrix_update(
         minlength = num_classes**2
 
     bins = _bincount(unique_mapping, minlength=minlength)
-    if multilabel:
-        confmat = bins.reshape(num_classes, 2, 2)
-    else:
-        confmat = bins.reshape(num_classes, num_classes)
-    return confmat
+    return (
+        bins.reshape(num_classes, 2, 2)
+        if multilabel
+        else bins.reshape(num_classes, num_classes)
+    )
 
 
 def _confusion_matrix_compute(confmat: Tensor, normalize: Optional[str] = None) -> Tensor:
@@ -98,7 +98,7 @@ def _confusion_matrix_compute(confmat: Tensor, normalize: Optional[str] = None) 
     if normalize not in allowed_normalize:
         raise ValueError(f"Argument average needs to one of the following: {allowed_normalize}")
     if normalize is not None and normalize != "none":
-        confmat = confmat.float() if not confmat.is_floating_point() else confmat
+        confmat = confmat if confmat.is_floating_point() else confmat.float()
         if normalize == "true":
             confmat = confmat / confmat.sum(axis=1, keepdim=True)
         elif normalize == "pred":

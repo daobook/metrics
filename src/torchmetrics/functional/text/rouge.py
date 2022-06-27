@@ -128,8 +128,7 @@ def _union_lcs(pred_tokens_list: Sequence[Sequence[str]], target_tokens: Sequenc
     def lcs_ind(pred_tokens: Sequence[str], target_tokens: Sequence[str]) -> Sequence[int]:
         """Returns one of the longest of longest common subsequence via backtracked lcs table."""
         lcs_table: Sequence[Sequence[int]] = _lcs(pred_tokens, target_tokens, return_full_table=True)  # type: ignore
-        backtracked_lcs_table = _backtracked_lcs(lcs_table, pred_tokens, target_tokens)
-        return backtracked_lcs_table
+        return _backtracked_lcs(lcs_table, pred_tokens, target_tokens)
 
     def find_union(lcs_tables: Sequence[Sequence[int]]) -> Sequence[int]:
         """Find union LCS given a list of LCS."""
@@ -378,7 +377,7 @@ def _rouge_score_compute(sentence_results: Dict[str, List[Tensor]]) -> Dict[str,
     """
     results: Dict[str, Tensor] = {}
     # Obtain mean scores for individual rouge metrics
-    if sentence_results == {}:
+    if not sentence_results:
         return results
 
     for rouge_key, scores in sentence_results.items():

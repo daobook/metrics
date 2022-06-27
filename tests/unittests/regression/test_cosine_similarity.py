@@ -47,14 +47,12 @@ def _multi_target_sk_metric(preds, target, reduction, sk_fn=sk_cosine):
     result_array = sk_fn(sk_target, sk_preds)
     col = np.diagonal(result_array)
     col_sum = col.sum()
-    if reduction == "sum":
-        to_return = col_sum
-    elif reduction == "mean":
-        mean = col_sum / len(col)
-        to_return = mean
+    if reduction == "mean":
+        return col_sum / len(col)
+    elif reduction == "sum":
+        return col_sum
     else:
-        to_return = col
-    return to_return
+        return col
 
 
 def _single_target_sk_metric(preds, target, reduction, sk_fn=sk_cosine):
@@ -63,14 +61,12 @@ def _single_target_sk_metric(preds, target, reduction, sk_fn=sk_cosine):
     result_array = sk_fn(np.expand_dims(sk_preds, axis=0), np.expand_dims(sk_target, axis=0))
     col = np.diagonal(result_array)
     col_sum = col.sum()
-    if reduction == "sum":
-        to_return = col_sum
-    elif reduction == "mean":
-        mean = col_sum / len(col)
-        to_return = mean
+    if reduction == "mean":
+        return col_sum / len(col)
+    elif reduction == "sum":
+        return col_sum
     else:
-        to_return = col
-    return to_return
+        return col
 
 
 @pytest.mark.parametrize("reduction", ["sum", "mean"])

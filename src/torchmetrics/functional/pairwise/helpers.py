@@ -30,16 +30,16 @@ def _check_input(
     if x.ndim != 2:
         raise ValueError(f"Expected argument `x` to be a 2D tensor of shape `[N, d]` but got {x.shape}")
 
-    if y is not None:
-        if y.ndim != 2 or y.shape[1] != x.shape[1]:
-            raise ValueError(
-                "Expected argument `y` to be a 2D tensor of shape `[M, d]` where"
-                " `d` should be same as the last dimension of `x`"
-            )
-        zero_diagonal = False if zero_diagonal is None else zero_diagonal
-    else:
+    if y is None:
         y = x.clone()
         zero_diagonal = True if zero_diagonal is None else zero_diagonal
+    elif y.ndim != 2 or y.shape[1] != x.shape[1]:
+        raise ValueError(
+            "Expected argument `y` to be a 2D tensor of shape `[M, d]` where"
+            " `d` should be same as the last dimension of `x`"
+        )
+    else:
+        zero_diagonal = False if zero_diagonal is None else zero_diagonal
     return x, y, zero_diagonal
 
 

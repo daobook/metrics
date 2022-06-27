@@ -42,9 +42,7 @@ class UserNormalizer:
         Return:
             Normalized python string object
         """
-        output_text = re.sub(self.pattern, " ", text.lower())
-
-        return output_text
+        return re.sub(self.pattern, " ", text.lower())
 
 
 class UserTokenizer:
@@ -65,9 +63,7 @@ class UserTokenizer:
         Return:
             Tokenized sentence
         """
-        output_tokens = re.split(self.pattern, text)
-
-        return output_tokens
+        return re.split(self.pattern, text)
 
 
 _PREDS = ["hello", "hello world", "world world world"]

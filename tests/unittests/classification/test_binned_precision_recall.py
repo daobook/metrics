@@ -42,7 +42,7 @@ def recall_at_precision_x_multilabel(predictions: Tensor, targets: Tensor, min_p
     except ValueError:
         max_recall, best_threshold = 0, 1e6
 
-    return float(max_recall), float(best_threshold)
+    return float(max_recall), best_threshold
 
 
 def _sk_prec_recall_mclass_prob(predictions, targets, num_classes, min_precision):

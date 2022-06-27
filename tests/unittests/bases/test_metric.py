@@ -380,12 +380,11 @@ def test_constant_memory(device, requires_grad):
         pytest.skip("Test requires GPU support")
 
     def get_memory_usage():
-        if device == "cpu":
-            pid = os.getpid()
-            py = psutil.Process(pid)
-            return py.memory_info()[0] / 2.0**30
-        else:
+        if device != "cpu":
             return torch.cuda.memory_allocated()
+        pid = os.getpid()
+        py = psutil.Process(pid)
+        return py.memory_info()[0] / 2.0**30
 
     x = torch.randn(10, requires_grad=requires_grad, device=device)
 

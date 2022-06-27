@@ -90,10 +90,7 @@ def dice_score(
     if zero_division != nan_score:
         rank_zero_warn(f"Deprecated parameter. `nan_score` converted to integer {zero_division}.")
 
-    ignore_index = None
-    if not bg:
-        ignore_index = 0
-
+    ignore_index = None if bg else 0
     return dice(
         preds,
         target,
@@ -272,7 +269,9 @@ def dice(
     if average not in allowed_average:
         raise ValueError(f"The `average` has to be one of {allowed_average}, got {average}.")
 
-    if average in ["macro", "weighted", "none", None] and (not num_classes or num_classes < 1):
+    if average in {"macro", "weighted", "none", None} and (
+        (not num_classes or num_classes < 1)
+    ):
         raise ValueError(f"When you set `average` as {average}, you have to provide the number of classes.")
 
     allowed_mdmc_average = [None, "samplewise", "global"]
@@ -286,7 +285,7 @@ def dice(
         raise ValueError(f"The `top_k` should be an integer larger than 0, got {top_k}")
 
     preds, target = _input_squeeze(preds, target)
-    reduce = "macro" if average in ("weighted", "none", None) else average
+    reduce = "macro" if average in {"weighted", "none", None} else average
 
     tp, fp, _, fn = _stat_scores_update(
         preds,

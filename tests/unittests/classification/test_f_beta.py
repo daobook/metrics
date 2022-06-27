@@ -425,11 +425,7 @@ def test_top_k(
     class_metric = metric_class(top_k=k, average=average, num_classes=3)
     class_metric.update(preds, target)
 
-    if class_metric.beta != 1.0:
-        result = expected_fbeta
-    else:
-        result = expected_f1
-
+    result = expected_fbeta if class_metric.beta != 1.0 else expected_f1
     assert torch.isclose(class_metric.compute(), result)
     assert torch.isclose(metric_fn(preds, target, top_k=k, average=average, num_classes=3), result)
 

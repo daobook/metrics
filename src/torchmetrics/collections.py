@@ -219,9 +219,7 @@ class MetricCollection(ModuleDict):
 
         # Re-index groups
         temp = deepcopy(self._groups)
-        self._groups = {}
-        for idx, values in enumerate(temp.values()):
-            self._groups[idx] = values
+        self._groups = dict(enumerate(temp.values()))
 
     @staticmethod
     def _equal_metric_states(metric1: Metric, metric2: Metric) -> bool:
@@ -310,9 +308,7 @@ class MetricCollection(ModuleDict):
             # prepare for optional additions
             metrics = list(metrics)
             remain: list = []
-            for m in additional_metrics:
-                (metrics if isinstance(m, Metric) else remain).append(m)
-
+            (metrics if isinstance(m, Metric) else remain).extend(iter(additional_metrics))
             if remain:
                 rank_zero_warn(
                     f"You have passes extra arguments {remain} which are not `Metric` so they will be ignored."
@@ -369,7 +365,7 @@ class MetricCollection(ModuleDict):
         simply initialize each metric in the collection as its own group
         """
         if isinstance(self._enable_compute_groups, list):
-            self._groups = {i: k for i, k in enumerate(self._enable_compute_groups)}
+            self._groups = dict(enumerate(self._enable_compute_groups))
             for v in self._groups.values():
                 for metric in v:
                     if metric not in self:
@@ -453,5 +449,5 @@ class MetricCollection(ModuleDict):
         if self.prefix:
             repr_str += f",\n  prefix={self.prefix}{',' if self.postfix else ''}"
         if self.postfix:
-            repr_str += f"{',' if not self.prefix else ''}\n  postfix={self.postfix}"
+            repr_str += f"{'' if self.prefix else ','}\n  postfix={self.postfix}"
         return repr_str + "\n)"

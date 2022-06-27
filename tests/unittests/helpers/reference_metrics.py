@@ -152,7 +152,7 @@ def _calibration_error(
     else:
         sample_weight = np.ones(y_true.shape[0])
 
-    n_bins = int(n_bins)
+    n_bins = n_bins
     if strategy == "quantile":
         quantiles = np.percentile(y_prob, np.arange(0, 1, 1.0 / n_bins) * 100)
     elif strategy == "uniform":
@@ -255,13 +255,12 @@ def _sk_ergas(
     # compute ergas score
     ergas_score = 100 * ratio * torch.sqrt(torch.sum((rmse_per_band / mean_target) ** 2, dim=1) / c)
     # reduction
-    if reduction == "sum":
-        to_return = torch.sum(ergas_score)
-    elif reduction == "elementwise_mean":
-        to_return = torch.mean(ergas_score)
+    if reduction == "elementwise_mean":
+        return torch.mean(ergas_score)
+    elif reduction == "sum":
+        return torch.sum(ergas_score)
     else:
-        to_return = ergas_score
-    return to_return
+        return ergas_score
 
 
 def _sk_sam(
@@ -276,10 +275,9 @@ def _sk_sam(
     similarity = F.cosine_similarity(preds, target)
     sam_score = torch.clamp(similarity, -1, 1).acos()
     # reduction
-    if reduction == "sum":
-        to_return = torch.sum(sam_score)
-    elif reduction == "elementwise_mean":
-        to_return = torch.mean(sam_score)
+    if reduction == "elementwise_mean":
+        return torch.mean(sam_score)
+    elif reduction == "sum":
+        return torch.sum(sam_score)
     else:
-        to_return = sam_score
-    return to_return
+        return sam_score

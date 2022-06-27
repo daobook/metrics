@@ -273,11 +273,10 @@ def _calculate_fscore(
         denominator: Dict[int, Tensor] = {
             n: torch.max(beta**2 * precision[n] + recall[n], _EPS_SMOOTHING) for n in matching_n_grams
         }
-        f_score: Dict[int, Tensor] = {
-            n: (1 + beta**2) * precision[n] * recall[n] / denominator[n] for n in matching_n_grams
+        return {
+            n: (1 + beta**2) * precision[n] * recall[n] / denominator[n]
+            for n in matching_n_grams
         }
-
-        return f_score
 
     char_n_gram_f_score = _get_n_gram_fscore(matching_char_n_grams, ref_char_n_grams, hyp_char_n_grams, beta)
     word_n_gram_f_score = _get_n_gram_fscore(matching_word_n_grams, ref_word_n_grams, hyp_word_n_grams, beta)
@@ -507,7 +506,7 @@ def _chrf_score_compute(
     Return:
         A corpus-level chrF/chrF++ score.
     """
-    chrf_f_score = _calculate_fscore(
+    return _calculate_fscore(
         total_matching_char_n_grams,
         total_matching_word_n_grams,
         total_preds_char_n_grams,
@@ -517,7 +516,6 @@ def _chrf_score_compute(
         n_order,
         beta,
     )
-    return chrf_f_score
 
 
 def chrf_score(

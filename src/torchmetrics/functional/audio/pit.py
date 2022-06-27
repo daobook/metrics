@@ -131,7 +131,7 @@ def permutation_invariant_training(
     Reference:
         [1]	`Permutation Invariant Training of Deep Models`_
     """
-    if preds.shape[0:2] != target.shape[0:2]:
+    if preds.shape[:2] != target.shape[:2]:
         raise RuntimeError(
             "Predictions and targets are expected to have the same shape at the batch and speaker dimensions"
         )
@@ -141,7 +141,7 @@ def permutation_invariant_training(
         raise ValueError(f"Inputs must be of shape [batch, spk, ...], got {target.shape} and {preds.shape} instead")
 
     # calculate the metric matrix
-    batch_size, spk_num = target.shape[0:2]
+    batch_size, spk_num = target.shape[:2]
     metric_mtx = None
     for target_idx in range(spk_num):  # we have spk_num speeches in target in each sample
         for preds_idx in range(spk_num):  # we have spk_num speeches in preds in each sample
@@ -157,7 +157,7 @@ def permutation_invariant_training(
     # find best
     op = torch.max if eval_func == "max" else torch.min
     if spk_num < 3 or not _SCIPY_AVAILABLE:
-        if spk_num >= 3 and not _SCIPY_AVAILABLE:
+        if spk_num >= 3:
             warn(f"In pit metric for speaker-num {spk_num}>3, we recommend installing scipy for better performance")
 
         best_metric, best_perm = _find_best_perm_by_exhaustive_method(metric_mtx, op)
@@ -177,5 +177,6 @@ def pit_permutate(preds: Tensor, perm: Tensor) -> Tensor:
     Returns:
         Tensor: the permutated version of estimate
     """
-    preds_pmted = torch.stack([torch.index_select(pred, 0, p) for pred, p in zip(preds, perm)])
-    return preds_pmted
+    return torch.stack(
+        [torch.index_select(pred, 0, p) for pred, p in zip(preds, perm)]
+    )

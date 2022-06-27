@@ -254,7 +254,7 @@ def test_collection_add_metrics():
 
     collection.update(5)
     results = collection.compute()
-    assert results["DummyMetricSum"] == results["m1_"] and results["m1_"] == 5
+    assert results["DummyMetricSum"] == results["m1_"] == 5
     assert results["DummyMetricDiff"] == -5
 
 

@@ -397,7 +397,7 @@ def _translation_edit_rate(pred_words: List[str], target_words: List[str]) -> Te
     Return:
         A number of required edits to match hypothesis and reference sentences.
     """
-    if len(target_words) == 0:
+    if not target_words:
         return tensor(0.0)
 
     cached_edit_distance = _LevenshteinEditDistance(target_words)
@@ -458,12 +458,11 @@ def _compute_ter_score_from_statistics(num_edits: Tensor, tgt_length: Tensor) ->
         A corpus-level TER score or 1 if reference_length == 0.
     """
     if tgt_length > 0 and num_edits > 0:
-        score = num_edits / tgt_length
+        return num_edits / tgt_length
     elif tgt_length == 0 and num_edits > 0:
-        score = tensor(1.0)
+        return tensor(1.0)
     else:
-        score = tensor(0.0)
-    return score
+        return tensor(0.0)
 
 
 def _ter_update(

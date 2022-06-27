@@ -569,7 +569,7 @@ class Metric(Module, ABC):
         self.compute: Callable = self._wrap_compute(self.compute)  # type: ignore
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if name in ("higher_is_better", "is_differentiable", "full_state_update"):
+        if name in {"higher_is_better", "is_differentiable", "full_state_update"}:
             raise RuntimeError(f"Can't change const `{name}`.")
         super().__setattr__(name, value)
 
@@ -921,12 +921,7 @@ class CompositionalMetric(Metric):
             return None
 
         if val_b is None:
-            if isinstance(self.metric_b, Metric):
-                return None
-
-            # Unary op
-            return self.op(val_a)
-
+            return None if isinstance(self.metric_b, Metric) else self.op(val_a)
         # Binary op
         return self.op(val_a, val_b)
 
@@ -945,9 +940,7 @@ class CompositionalMetric(Metric):
 
     def __repr__(self) -> str:
         _op_metrics = f"(\n  {self.op.__name__}(\n    {repr(self.metric_a)},\n    {repr(self.metric_b)}\n  )\n)"
-        repr_str = self.__class__.__name__ + _op_metrics
-
-        return repr_str
+        return self.__class__.__name__ + _op_metrics
 
     def _wrap_compute(self, compute: Callable) -> Callable:
         return compute

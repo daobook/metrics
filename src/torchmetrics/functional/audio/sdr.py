@@ -212,7 +212,7 @@ def signal_distortion_ratio(
                     "provided by Pytorch is used.",
                     UserWarning,
                 )
-            elif not _TORCH_GREATER_EQUAL_1_8:
+            else:
                 warnings.warn(
                     "The `use_cg_iter` parameter of `SDR` requires a Pytorch version >= 1.8. "
                     "To make this this warning disappear, you could change to Pytorch v1.8+ or set `use_cg_iter=None`. "
@@ -230,10 +230,7 @@ def signal_distortion_ratio(
     ratio = coh / (1 - coh)
     val = 10.0 * torch.log10(ratio)
 
-    if preds_dtype == torch.float64:
-        return val
-    else:
-        return val.float()
+    return val if preds_dtype == torch.float64 else val.float()
 
 
 def scale_invariant_signal_distortion_ratio(preds: Tensor, target: Tensor, zero_mean: bool = False) -> Tensor:

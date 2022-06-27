@@ -26,11 +26,13 @@ seed_all(42)
 def _sk_calibration(preds, target, n_bins, norm, debias=False):
     _, _, mode = _input_format_classification(preds, target, threshold=THRESHOLD)
     sk_preds, sk_target = preds.numpy(), target.numpy()
-    if mode == DataType.BINARY:
-        if not np.logical_and(0 <= sk_preds, sk_preds <= 1).all():
-            sk_preds = 1.0 / (1 + np.exp(-sk_preds))  # sigmoid transform
+    if (
+        mode == DataType.BINARY
+        and not np.logical_and(sk_preds >= 0, sk_preds <= 1).all()
+    ):
+        sk_preds = 1.0 / (1 + np.exp(-sk_preds))  # sigmoid transform
     if mode == DataType.MULTICLASS:
-        if not np.logical_and(0 <= sk_preds, sk_preds <= 1).all():
+        if not np.logical_and(sk_preds >= 0, sk_preds <= 1).all():
             sk_preds = _softmax(sk_preds, axis=1)
         # binary label is whether or not the predicted class is correct
         sk_target = np.equal(np.argmax(sk_preds, axis=1), sk_target)

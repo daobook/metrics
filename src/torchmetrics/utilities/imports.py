@@ -34,11 +34,8 @@ def _package_available(package_name: str) -> bool:
     """
     try:
         return find_spec(package_name) is not None
-    except AttributeError:
+    except (AttributeError, ImportError):
         # Python 3.6
-        return False
-    except (ImportError, ModuleNotFoundError):
-        # Python 3.7+
         return False
 
 
