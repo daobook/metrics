@@ -185,21 +185,20 @@ class RetrievalPrecisionRecallCurve(Metric):
             mini_preds = preds[group]
             mini_target = target[group]
 
-            if not mini_target.sum():
-                if self.empty_target_action == "error":
-                    raise ValueError("`compute` method was provided with a query with no positive target.")
-                elif self.empty_target_action == "pos":
-                    recalls.append(torch.ones(max_k, device=preds.device))
-                    precisions.append(torch.ones(max_k, device=preds.device))
-                elif self.empty_target_action == "neg":
-                    recalls.append(torch.zeros(max_k, device=preds.device))
-                    precisions.append(torch.zeros(max_k, device=preds.device))
-            else:
+            if mini_target.sum():
                 precision, recall, _ = retrieval_precision_recall_curve(mini_preds, mini_target, max_k, self.adaptive_k)
 
                 precisions.append(precision)
                 recalls.append(recall)
 
+            elif self.empty_target_action == "error":
+                raise ValueError("`compute` method was provided with a query with no positive target.")
+            elif self.empty_target_action == "pos":
+                recalls.append(torch.ones(max_k, device=preds.device))
+                precisions.append(torch.ones(max_k, device=preds.device))
+            elif self.empty_target_action == "neg":
+                recalls.append(torch.zeros(max_k, device=preds.device))
+                precisions.append(torch.zeros(max_k, device=preds.device))
         precision = (
             torch.stack([x.to(preds) for x in precisions]).mean(dim=0) if precisions else torch.zeros(max_k).to(preds)
         )

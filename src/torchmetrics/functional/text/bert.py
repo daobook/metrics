@@ -118,7 +118,7 @@ def _input_data_collator(
     max_len = int(batch["attention_mask"].sum(1).max().item())
     input_ids = batch["input_ids"][:, :max_len].to(device)
     attention_mask = batch["attention_mask"][:, :max_len].to(device)
-    batch.update({"input_ids": input_ids, "attention_mask": attention_mask})
+    batch |= {"input_ids": input_ids, "attention_mask": attention_mask}
     return batch
 
 
@@ -187,9 +187,11 @@ class TextDataset(Dataset):
             token_counter.update(tokens)
 
         tokens_idf: Dict[int, float] = defaultdict(self._get_tokens_idf_default_value)
-        tokens_idf.update(
-            {idx: math.log((self.num_sentences + 1) / (occurrence + 1)) for idx, occurrence in token_counter.items()}
-        )
+        tokens_idf |= {
+            idx: math.log((self.num_sentences + 1) / (occurrence + 1))
+            for idx, occurrence in token_counter.items()
+        }
+
         return tokens_idf
 
     def _get_tokens_idf_default_value(self) -> float:
@@ -363,8 +365,7 @@ def _get_precision_recall_f1(
 
 def _get_hash(model_name_or_path: Optional[str] = None, num_layers: Optional[int] = None, idf: bool = False) -> str:
     """Compute `BERT_score`_ (copied and adjusted)"""
-    msg = f"{model_name_or_path}_L{num_layers}{'_idf' if idf else '_no-idf'}"
-    return msg
+    return f"{model_name_or_path}_L{num_layers}{'_idf' if idf else '_no-idf'}"
 
 
 def _read_csv_from_local_file(baseline_path: str) -> Tensor:
@@ -375,8 +376,7 @@ def _read_csv_from_local_file(baseline_path: str) -> Tensor:
     with open(baseline_path) as fname:
         csv_file = csv.reader(fname)
         baseline_list = [[float(item) for item in row] for idx, row in enumerate(csv_file) if idx > 0]
-    baseline = torch.tensor(baseline_list)[:, 1:]
-    return baseline
+    return torch.tensor(baseline_list)[:, 1:]
 
 
 def _read_csv_from_url(baseline_url: str) -> Tensor:
@@ -426,7 +426,7 @@ def _rescale_metrics_with_baseline(
     all_layers: bool = False,
 ) -> Tuple[Tensor, Tensor, Tensor]:
     """Rescale the computed metrics with the pre-computed baseline."""
-    if num_layers is None and all_layers is False:
+    if num_layers is None and not all_layers:
         num_layers = -1
     all_metrics = torch.stack([precision, recall, f1_score], dim=-1)
     baseline_scale = baseline.unsqueeze(1) if all_layers else baseline[num_layers]
@@ -579,7 +579,7 @@ def bert_score(
             "f1": [0.0],
         }
         if return_hash:
-            output_dict.update({"hash": _get_hash(model_name_or_path, num_layers, idf)})
+            output_dict["hash"] = _get_hash(model_name_or_path, num_layers, idf)
         return output_dict
 
     # Load baselines if needed
@@ -626,5 +626,5 @@ def bert_score(
         "f1": f1_score.tolist(),
     }
     if return_hash:
-        output_dict.update({"hash": _get_hash(model_name_or_path, num_layers, idf)})
+        output_dict["hash"] = _get_hash(model_name_or_path, num_layers, idf)
     return output_dict

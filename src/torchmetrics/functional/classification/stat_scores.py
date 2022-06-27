@@ -256,11 +256,7 @@ def _reduce_stat_scores(
     zero_div_mask = denominator == 0
     ignore_mask = denominator < 0
 
-    if weights is None:
-        weights = torch.ones_like(denominator)
-    else:
-        weights = weights.float()
-
+    weights = torch.ones_like(denominator) if weights is None else weights.float()
     numerator = torch.where(
         zero_div_mask, tensor(zero_division, dtype=numerator.dtype, device=numerator.device), numerator
     )

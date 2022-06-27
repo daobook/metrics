@@ -42,18 +42,15 @@ def compute_area(input: List[Any], iou_type: str = "bbox") -> Tensor:
 
     Default output for empty input is torch.Tensor([])
     """
-    if len(input) == 0:
+    if not input:
 
         return torch.Tensor([])
 
     if iou_type == "bbox":
         return box_area(torch.stack(input))
     elif iou_type == "segm":
-
         input = [{"size": i[0], "counts": i[1]} for i in input]
-        area = torch.tensor(mask_utils.area(input).astype("float"))
-
-        return area
+        return torch.tensor(mask_utils.area(input).astype("float"))
     else:
         raise Exception(f"IOU type {iou_type} is not supported")
 
@@ -191,9 +188,7 @@ def _input_validator(
 def _fix_empty_tensors(boxes: Tensor) -> Tensor:
     """Empty tensors can cause problems in DDP mode, this methods corrects them."""
 
-    if boxes.numel() == 0 and boxes.ndim == 1:
-        return boxes.unsqueeze(0)
-    return boxes
+    return boxes.unsqueeze(0) if boxes.numel() == 0 and boxes.ndim == 1 else boxes
 
 
 class MeanAveragePrecision(Metric):
@@ -462,7 +457,7 @@ class MeanAveragePrecision(Metric):
         gt = [gt[i] for i in gt_label_mask]
         det = [det[i] for i in det_label_mask]
 
-        if len(gt) == 0 or len(det) == 0:
+        if not gt or not det:
             return Tensor([])
 
         # Sort by scores and use only max detections
@@ -475,8 +470,7 @@ class MeanAveragePrecision(Metric):
         if len(det) > max_det:
             det = det[:max_det]
 
-        ious = compute_iou(det, gt, self.iou_type).to(self.device)
-        return ious
+        return compute_iou(det, gt, self.iou_type).to(self.device)
 
     def __evaluate_image_gt_no_preds(
         self, gt: Tensor, gt_label_mask: Tensor, area_range: Tuple[int, int], nb_iou_thrs: int
@@ -574,7 +568,7 @@ class MeanAveragePrecision(Metric):
 
         gt = [gt[i] for i in gt_label_mask]
         det = [det[i] for i in det_label_mask]
-        if len(gt) == 0 and len(det) == 0:
+        if not gt and not det:
             return None
         if isinstance(det, dict):
             det = [det]
@@ -706,8 +700,11 @@ class MeanAveragePrecision(Metric):
             else:
                 prec = prec[:, :, area_inds, mdet_inds]
 
-        mean_prec = torch.tensor([-1.0]) if len(prec[prec > -1]) == 0 else torch.mean(prec[prec > -1])
-        return mean_prec
+        return (
+            torch.tensor([-1.0])
+            if len(prec[prec > -1]) == 0
+            else torch.mean(prec[prec > -1])
+        )
 
     def _calculate(self, class_ids: List) -> Tuple[MAPMetricResults, MARMetricResults]:
         """Calculate the precision and recall for all supplied classes to calculate mAP/mAR.

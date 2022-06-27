@@ -86,11 +86,14 @@ def _fbeta_compute(
         else:
             ignore_index = torch.unique(torch.cat((meaningless_indeces, torch.tensor([[ignore_index]]))))
 
-    if ignore_index is not None:
-        if average not in (AvgMethod.MICRO, AvgMethod.SAMPLES) and mdmc_average == MDMCAverageMethod.SAMPLEWISE:
+    if ignore_index is not None and average not in (
+        AvgMethod.MICRO,
+        AvgMethod.SAMPLES,
+    ):
+        if mdmc_average == MDMCAverageMethod.SAMPLEWISE:
             num[..., ignore_index] = -1
             denom[..., ignore_index] = -1
-        elif average not in (AvgMethod.MICRO, AvgMethod.SAMPLES):
+        else:
             num[ignore_index, ...] = -1
             denom[ignore_index, ...] = -1
 

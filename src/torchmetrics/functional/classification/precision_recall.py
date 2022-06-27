@@ -191,13 +191,15 @@ def precision(
     if mdmc_average not in allowed_mdmc_average:
         raise ValueError(f"The `mdmc_average` has to be one of {allowed_mdmc_average}, got {mdmc_average}.")
 
-    if average in ["macro", "weighted", "none", None] and (not num_classes or num_classes < 1):
+    if average in {"macro", "weighted", "none", None} and (
+        (not num_classes or num_classes < 1)
+    ):
         raise ValueError(f"When you set `average` as {average}, you have to provide the number of classes.")
 
     if num_classes and ignore_index is not None and (not 0 <= ignore_index < num_classes or num_classes == 1):
         raise ValueError(f"The `ignore_index` {ignore_index} is not valid for inputs with {num_classes} classes")
 
-    reduce = "macro" if average in ["weighted", "none", None] else average
+    reduce = "macro" if average in {"weighted", "none", None} else average
     tp, fp, _, fn = _stat_scores_update(
         preds,
         target,
@@ -384,13 +386,15 @@ def recall(
     if mdmc_average not in allowed_mdmc_average:
         raise ValueError(f"The `mdmc_average` has to be one of {allowed_mdmc_average}, got {mdmc_average}.")
 
-    if average in ["macro", "weighted", "none", None] and (not num_classes or num_classes < 1):
+    if average in {"macro", "weighted", "none", None} and (
+        (not num_classes or num_classes < 1)
+    ):
         raise ValueError(f"When you set `average` as {average}, you have to provide the number of classes.")
 
     if num_classes and ignore_index is not None and (not 0 <= ignore_index < num_classes or num_classes == 1):
         raise ValueError(f"The `ignore_index` {ignore_index} is not valid for inputs with {num_classes} classes")
 
-    reduce = "macro" if average in ["weighted", "none", None] else average
+    reduce = "macro" if average in {"weighted", "none", None} else average
     tp, fp, _, fn = _stat_scores_update(
         preds,
         target,
@@ -527,13 +531,15 @@ def precision_recall(
     if mdmc_average not in allowed_mdmc_average:
         raise ValueError(f"The `mdmc_average` has to be one of {allowed_mdmc_average}, got {mdmc_average}.")
 
-    if average in ["macro", "weighted", "none", None] and (not num_classes or num_classes < 1):
+    if average in {"macro", "weighted", "none", None} and (
+        (not num_classes or num_classes < 1)
+    ):
         raise ValueError(f"When you set `average` as {average}, you have to provide the number of classes.")
 
     if num_classes and ignore_index is not None and (not 0 <= ignore_index < num_classes or num_classes == 1):
         raise ValueError(f"The `ignore_index` {ignore_index} is not valid for inputs with {num_classes} classes")
 
-    reduce = "macro" if average in ["weighted", "none", None] else average
+    reduce = "macro" if average in {"weighted", "none", None} else average
     tp, fp, _, fn = _stat_scores_update(
         preds,
         target,

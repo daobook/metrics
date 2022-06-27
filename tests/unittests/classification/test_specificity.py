@@ -82,12 +82,9 @@ def _sk_stats_score(preds, target, reduce, num_classes, multiclass, ignore_index
 
 def _sk_spec(preds, target, reduce, num_classes, multiclass, ignore_index, top_k=None, mdmc_reduce=None, stats=None):
 
-    if stats:
-        fp, tn = stats
-    else:
+    if not stats:
         stats = _sk_stats_score(preds, target, reduce, num_classes, multiclass, ignore_index, top_k)
-        fp, tn = stats
-
+    fp, tn = stats
     fp, tn = tensor(fp), tensor(tn)
     spec = _reduce_stat_scores(
         numerator=tn,
@@ -114,8 +111,6 @@ def _sk_spec_mdim_mcls(preds, target, reduce, mdmc_reduce, num_classes, multicla
         target = torch.transpose(target, 1, 2).reshape(-1, target.shape[1])
         return _sk_spec(preds, target, reduce, num_classes, False, ignore_index, top_k, mdmc_reduce)
     fp, tn = [], []
-    stats = []
-
     for i in range(preds.shape[0]):
         pred_i = preds[i, ...].T
         target_i = target[i, ...].T
@@ -123,8 +118,7 @@ def _sk_spec_mdim_mcls(preds, target, reduce, mdmc_reduce, num_classes, multicla
         fp.append(fp_i)
         tn.append(tn_i)
 
-    stats.append(fp)
-    stats.append(tn)
+    stats = [fp, tn]
     return _sk_spec(preds[0], target[0], reduce, num_classes, multiclass, ignore_index, top_k, mdmc_reduce, stats)
 
 

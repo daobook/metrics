@@ -24,9 +24,7 @@ from torchmetrics.utilities.enums import DataType
 
 
 def _check_for_empty_tensors(preds: Tensor, target: Tensor) -> bool:
-    if preds.numel() == target.numel() == 0:
-        return True
-    return False
+    return preds.numel() == target.numel() == 0
 
 
 def _check_same_shape(preds: Tensor, target: Tensor) -> None:
@@ -55,7 +53,7 @@ def _basic_input_validation(
     if not preds_float and preds.min() < 0:
         raise ValueError("If `preds` are integers, they have to be non-negative.")
 
-    if not preds.shape[0] == target.shape[0]:
+    if preds.shape[0] != target.shape[0]:
         raise ValueError("The `preds` and `target` should have the same first dimension.")
 
     if multiclass is False and target.max() > 1:
@@ -90,7 +88,7 @@ def _check_shape_and_type_consistency(preds: Tensor, target: Tensor) -> Tuple[Da
         # Get the case
         if preds.ndim == 1 and preds_float:
             case = DataType.BINARY
-        elif preds.ndim == 1 and not preds_float:
+        elif preds.ndim == 1:
             case = DataType.MULTICLASS
         elif preds.ndim > 1 and preds_float:
             case = DataType.MULTILABEL
@@ -109,10 +107,7 @@ def _check_shape_and_type_consistency(preds: Tensor, target: Tensor) -> Tuple[Da
 
         implied_classes = preds.shape[1] if preds.numel() > 0 else 0
 
-        if preds.ndim == 2:
-            case = DataType.MULTICLASS
-        else:
-            case = DataType.MULTIDIM_MULTICLASS
+        case = DataType.MULTICLASS if preds.ndim == 2 else DataType.MULTIDIM_MULTICLASS
     else:
         raise ValueError(
             "Either `preds` and `target` both should have the (same) shape (N, ...), or `target` should be (N, ...)"
@@ -419,17 +414,20 @@ def _input_format_classification(
 
     if case in (DataType.BINARY, DataType.MULTILABEL) and not top_k:
         preds = (preds >= threshold).int()
-        num_classes = num_classes if not multiclass else 2
+        num_classes = 2 if multiclass else num_classes
 
     if case == DataType.MULTILABEL and top_k:
         preds = select_topk(preds, top_k)
 
-    if case in (DataType.MULTICLASS, DataType.MULTIDIM_MULTICLASS) or multiclass:
+    if (
+        case in (DataType.MULTICLASS, DataType.MULTIDIM_MULTICLASS)
+        or multiclass
+    ):
         if preds.is_floating_point():
             num_classes = preds.shape[1]
             preds = select_topk(preds, top_k or 1)
         else:
-            num_classes = num_classes if num_classes else max(preds.max(), target.max()) + 1
+            num_classes = num_classes or max(preds.max(), target.max()) + 1
             preds = to_onehot(preds, max(2, num_classes))
 
         target = to_onehot(target, max(2, num_classes))  # type: ignore

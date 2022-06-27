@@ -85,9 +85,7 @@ def weighted_mean_absolute_percentage_error(preds: Tensor, target: Tensor) -> Te
         preds,
         target,
     )
-    weighted_ape = _weighted_mean_absolute_percentage_error_compute(
+    return _weighted_mean_absolute_percentage_error_compute(
         sum_abs_error,
         sum_scale,
     )
-
-    return weighted_ape

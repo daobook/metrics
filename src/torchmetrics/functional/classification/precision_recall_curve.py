@@ -38,11 +38,7 @@ def _binary_clf_curve(
     preds = preds[desc_score_indices]
     target = target[desc_score_indices]
 
-    if sample_weights is not None:
-        weight = sample_weights[desc_score_indices]
-    else:
-        weight = 1.0
-
+    weight = 1.0 if sample_weights is None else sample_weights[desc_score_indices]
     # pred typically has many tied values. Here we extract
     # the indices associated with the distinct values. We also
     # concatenate a value for the end of the curve.
@@ -186,12 +182,11 @@ def _precision_recall_curve_compute_multi_class(
             sample_weights=sample_weights,
         )
         if target.ndim > 1:
-            prc_args.update(
-                dict(
-                    target=target[:, cls],
-                    pos_label=1,
-                )
+            prc_args |= dict(
+                target=target[:, cls],
+                pos_label=1,
             )
+
         res = precision_recall_curve(**prc_args)
         precision.append(res[0])
         recall.append(res[1])

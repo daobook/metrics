@@ -80,21 +80,19 @@ def _compute_precision_recall_curve(
 
     for group in groups:
         trg, prd = target[group], preds[group]
-        r, p = [], []
-
         if ((1 - trg) if reverse else trg).sum() == 0:
-            if empty_target_action == "skip":
-                pass
-            elif empty_target_action == "pos":
-                arr = [1.0] * max_k
-                recalls.append(arr)
-                precisions.append(arr)
-            elif empty_target_action == "neg":
+            if empty_target_action == "neg":
                 arr = [0.0] * max_k
                 recalls.append(arr)
                 precisions.append(arr)
 
+            elif empty_target_action == "pos":
+                arr = [1.0] * max_k
+                recalls.append(arr)
+                precisions.append(arr)
         else:
+            r, p = [], []
+
             for k in top_k:
                 r.append(_recall_at_k(trg, prd, k=k.item()))
                 p.append(_precision_at_k(trg, prd, k=k.item(), adaptive_k=adaptive_k))

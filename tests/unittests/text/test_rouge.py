@@ -220,7 +220,7 @@ def test_rouge_metric_normalizer_tokenizer(pl_rouge_metric_key):
     )
     metrics_score = scorer.compute()
 
-    assert torch.isclose(metrics_score[rouge_level + "_" + metric], original_score)
+    assert torch.isclose(metrics_score[f"{rouge_level}_{metric}"], original_score)
 
 
 @pytest.mark.parametrize(
@@ -253,4 +253,4 @@ def test_rouge_lsum_score(pl_rouge_metric_key, use_stemmer):
         rouge_keys=rouge_level,
         use_stemmer=use_stemmer,
     )
-    assert torch.isclose(metrics_score[rouge_level + "_" + metric], original_score)
+    assert torch.isclose(metrics_score[f"{rouge_level}_{metric}"], original_score)

@@ -155,10 +155,10 @@ class StatScores(Metric):
         default: Callable = lambda: []
         reduce_fn: Optional[str] = "cat"
         if mdmc_reduce != "samplewise" and reduce != "samples":
-            if reduce == "micro":
-                zeros_shape = []
-            elif reduce == "macro":
+            if reduce == "macro":
                 zeros_shape = [num_classes]
+            elif reduce == "micro":
+                zeros_shape = []
             else:
                 raise ValueError(f'Wrong reduce="{reduce}"')
             default = lambda: torch.zeros(zeros_shape, dtype=torch.long)

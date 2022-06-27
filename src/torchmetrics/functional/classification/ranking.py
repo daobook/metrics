@@ -35,12 +35,13 @@ def _check_ranking_input(preds: Tensor, target: Tensor, sample_weight: Optional[
         )
     if preds.shape != target.shape:
         raise ValueError("Expected both predictions and target to have same shape")
-    if sample_weight is not None:
-        if sample_weight.ndim != 1 or sample_weight.shape[0] != preds.shape[0]:
-            raise ValueError(
-                "Expected sample weights to be 1 dimensional and have same size"
-                f" as the first dimension of preds and target but got {sample_weight.shape}"
-            )
+    if sample_weight is not None and (
+        sample_weight.ndim != 1 or sample_weight.shape[0] != preds.shape[0]
+    ):
+        raise ValueError(
+            "Expected sample weights to be 1 dimensional and have same size"
+            f" as the first dimension of preds and target but got {sample_weight.shape}"
+        )
 
 
 def _coverage_error_update(

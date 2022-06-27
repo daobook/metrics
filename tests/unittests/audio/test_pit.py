@@ -69,7 +69,7 @@ def naive_implementation_pit_scipy(
         best_perm:
             shape [batch, spk]
     """
-    batch_size, spk_num = target.shape[0:2]
+    batch_size, spk_num = target.shape[:2]
     metric_mtx = torch.empty((batch_size, spk_num, spk_num), device=target.device)
     for t in range(spk_num):
         for e in range(spk_num):

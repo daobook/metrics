@@ -52,13 +52,15 @@ def _tweedie_deviance_score_update(preds: Tensor, targets: Tensor, power: float 
                 f"For power={power}, 'preds' has to be strictly positive and 'targets' cannot be negative."
             )
 
-        deviance_score = 2 * (_safe_xlogy(targets, targets / preds) + preds - targets)
+        else:
+            deviance_score = 2 * (_safe_xlogy(targets, targets / preds) + preds - targets)
     elif power == 2:
         # Gamma distribution
         if torch.any(preds <= 0) or torch.any(targets <= 0):
             raise ValueError(f"For power={power}, both 'preds' and 'targets' have to be strictly positive.")
 
-        deviance_score = 2 * (torch.log(preds / targets) + (targets / preds) - 1)
+        else:
+            deviance_score = 2 * (torch.log(preds / targets) + (targets / preds) - 1)
     else:
         if power < 0:
             if torch.any(preds <= 0):
@@ -68,9 +70,8 @@ def _tweedie_deviance_score_update(preds: Tensor, targets: Tensor, power: float 
                 raise ValueError(
                     f"For power={power}, 'targets' has to be strictly positive and 'preds' cannot be negative."
                 )
-        else:
-            if torch.any(preds <= 0) or torch.any(targets <= 0):
-                raise ValueError(f"For power={power}, both 'preds' and 'targets' have to be strictly positive.")
+        elif torch.any(preds <= 0) or torch.any(targets <= 0):
+            raise ValueError(f"For power={power}, both 'preds' and 'targets' have to be strictly positive.")
 
         term_1 = torch.pow(torch.max(targets, zero_tensor), 2 - power) / ((1 - power) * (2 - power))
         term_2 = targets * torch.pow(preds, 1 - power) / (1 - power)
